@@ -8,8 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       body {
-        background-color: #e0f2fe;
-        background-image: linear-gradient(to bottom right, #e0f2fe, #bfdbfe);
+        background-color: #f8f5f2; /* Soft off-white/beige background */
         background-attachment: fixed;
         background-size: cover;
       }
@@ -18,6 +17,21 @@
       tailwind.config = {
         theme: {
           extend: {
+            colors: {
+              brown: {
+                light: '#a1887f',
+                DEFAULT: '#8d6e63',
+                dark: '#6d4c41',
+              },
+              beige: {
+                light: '#fffdfa',
+                DEFAULT: '#f5f1ed',
+              },
+              feedback: {
+                correct: '#689f38',
+                incorrect: '#d32f2f',
+              }
+            },
             keyframes: {
               shake: {
                 '0%, 100%': { transform: 'translateX(0)' },
@@ -25,8 +39,8 @@
                 '20%, 40%, 60%, 80%': { transform: 'translateX(10px)' },
               },
               glow: {
-                '0%, 100%': { boxShadow: '0 0 5px #38bdf8, 0 0 10px #38bdf8' },
-                '50%': { boxShadow: '0 0 20px #38bdf8, 0 0 30px #38bdf8' },
+                '0%, 100%': { boxShadow: '0 0 5px #a1887f, 0 0 10px #a1887f' },
+                '50%': { boxShadow: '0 0 20px #a1887f, 0 0 30px #a1887f' },
               },
               fadeIn: {
                 '0%': { opacity: '0', transform: 'translateY(20px)' },
@@ -43,16 +57,16 @@
               },
               'timer-warning-bg': {
                 '0%, 100%': { 'background-color': 'rgba(255, 255, 255, 0)' },
-                '50%': { 'background-color': 'rgba(254, 202, 202, 0.8)' },
+                '50%': { 'background-color': 'rgba(239, 108, 0, 0.2)' },
               },
               'correct-celebration': {
-                '0%': { 'box-shadow': 'inset 0 0 0 0 rgba(52, 211, 153, 0)' },
-                '50%': { 'box-shadow': 'inset 0 0 150px 75px rgba(52, 211, 153, 0.4)' },
-                '100%': { 'box-shadow': 'inset 0 0 0 0 rgba(52, 211, 153, 0)' },
+                '0%': { 'box-shadow': 'inset 0 0 0 0 rgba(104, 159, 56, 0)' },
+                '50%': { 'box-shadow': 'inset 0 0 150px 75px rgba(104, 159, 56, 0.4)' },
+                '100%': { 'box-shadow': 'inset 0 0 0 0 rgba(104, 159, 56, 0)' },
               },
               'incorrect-flash': {
                 '0%, 100%': { 'background-color': 'rgba(255, 255, 255, 0)' },
-                '50%': { 'background-color': 'rgba(239, 68, 68, 0.2)' },
+                '50%': { 'background-color': 'rgba(211, 47, 47, 0.15)' },
               }
             },
             animation: {
@@ -265,11 +279,11 @@
       const Modal = ({ title, children, onClose, hideCloseButton = false }) => {
           return (
               <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-                  <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-gray-200 animate-fadeIn">
+                  <div className="bg-beige-light rounded-xl shadow-2xl p-6 w-full max-w-md border border-gray-200 animate-fadeIn">
                       <div className="flex justify-between items-center mb-4">
-                          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+                          <h2 className="text-2xl font-bold text-brown-dark">{title}</h2>
                           {!hideCloseButton && (
-                              <button onClick={onClose} className="text-gray-400 hover:text-gray-800">
+                              <button onClick={onClose} className="text-gray-400 hover:text-brown-dark">
                                   <XMarkIcon className="w-6 h-6" />
                               </button>
                           )}
@@ -289,20 +303,20 @@
 
           const getStatusClass = (index) => {
               if (index === currentQuestionIndex) {
-                  return 'bg-sky-500 ring-2 ring-sky-300 text-white';
+                  return 'bg-brown ring-2 ring-brown-light text-white';
               }
               const questionId = activeQuizData.questions[index]?.id;
               if (answers[questionId]) {
-                  return answers[questionId].isCorrect ? 'bg-emerald-500 hover:bg-emerald-600 text-white' : 'bg-red-500 hover:bg-red-600 text-white';
+                  return answers[questionId].isCorrect ? 'bg-feedback-correct hover:bg-green-700 text-white' : 'bg-feedback-incorrect hover:bg-red-800 text-white';
               }
-              return 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300';
+              return 'bg-beige-light hover:bg-gray-100 text-gray-700 border border-gray-300';
           };
 
           return (
               <div className="flex flex-col h-full">
-                  <h3 className="text-lg font-bold mb-4 text-gray-800">Questions</h3>
+                  <h3 className="text-lg font-bold mb-4 text-brown-dark">Questions</h3>
                   <div className="flex-grow overflow-y-auto pr-2">
-                      <div className="grid grid-cols-6 sm:grid-cols-5 gap-2">
+                      <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-5 gap-2">
                           {Array.from({ length: totalQuestions }, (_, i) => (
                               <button
                                   key={i}
@@ -317,7 +331,7 @@
                    {answers[lastQuestionId] && (
                       <button 
                           onClick={onFinishQuiz}
-                          className="mt-4 w-full flex items-center justify-center bg-yellow-500 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-yellow-600 transition-transform transform hover:scale-105 animate-fadeIn"
+                          className="mt-4 w-full flex items-center justify-center bg-amber-500 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-amber-600 transition-transform transform hover:scale-105 animate-fadeIn"
                       >
                           <FlagIcon className="w-5 h-5 mr-2" />
                           Finish & See Results
@@ -351,26 +365,26 @@
           }
 
           return (
-              <div className="text-center p-6 sm:p-8 bg-white/80 backdrop-blur-sm rounded-xl shadow-2xl animate-fadeIn">
-                  <AwardIcon className="w-20 h-20 text-yellow-500 mx-auto mb-4" />
-                  <h2 className="text-4xl font-bold text-gray-900 mb-2">Quiz Completed!</h2>
+              <div className="text-center p-6 sm:p-8 bg-beige-light/80 backdrop-blur-sm rounded-xl shadow-2xl animate-fadeIn">
+                  <AwardIcon className="w-20 h-20 text-amber-500 mx-auto mb-4" />
+                  <h2 className="text-4xl font-bold text-brown-dark mb-2">Quiz Completed!</h2>
                   <p className="text-gray-600 mb-2 text-lg">You finished the "{activeQuizData.title}" quiz.</p>
                   <p className="text-gray-600 mb-8">{getMotivationalQuote(results.scorePercentage)}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                      <div className="bg-sky-50 p-4 rounded-lg">
+                      <div className="bg-beige-light p-4 rounded-lg">
                           <p className="text-sm text-gray-600">Your Score</p>
-                          <p className="text-3xl font-bold text-sky-600">{results.scorePercentage}%</p>
+                          <p className="text-3xl font-bold text-brown">{results.scorePercentage}%</p>
                       </div>
-                       <div className="bg-blue-50 p-4 rounded-lg">
+                       <div className="bg-beige-light p-4 rounded-lg">
                           <p className="text-sm text-gray-600">Correct Answers</p>
-                          <p className="text-3xl font-bold text-gray-800">{results.correctAnswers} <span className="text-lg text-gray-500">/ {results.totalQuestions}</span></p>
+                          <p className="text-3xl font-bold text-brown-dark">{results.correctAnswers} <span className="text-lg text-gray-500">/ {results.totalQuestions}</span></p>
                       </div>
                   </div>
                   <div className="flex flex-col sm:flex-row justify-center gap-4">
-                      <button onClick={onRetry} className="bg-sky-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-sky-700 transition-transform transform hover:scale-105">
+                      <button onClick={onRetry} className="bg-brown text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-brown-dark transition-transform transform hover:scale-105">
                           Retry Quiz
                       </button>
-                      <button onClick={onReview} className="bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-300 transition-transform transform hover:scale-105">
+                      <button onClick={onReview} className="bg-gray-200 text-brown-dark font-bold py-3 px-6 rounded-lg shadow-md hover:bg-gray-300 transition-transform transform hover:scale-105">
                           Review Answers
                       </button>
                   </div>
@@ -381,10 +395,10 @@
       // --- From components/ReviewView.tsx ---
       const ReviewView = ({ quizState, activeQuizData, onBackToStart }) => {
           return (
-              <div className="p-4 md:p-8 bg-white/80 backdrop-blur-sm rounded-xl shadow-2xl w-full animate-fadeIn">
+              <div className="p-4 md:p-8 bg-beige-light/80 backdrop-blur-sm rounded-xl shadow-2xl w-full animate-fadeIn">
                   <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center sm:text-left">Review: {activeQuizData.title}</h2>
-                      <button onClick={onBackToStart} className="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition flex-shrink-0">
+                      <h2 className="text-2xl sm:text-3xl font-bold text-brown-dark text-center sm:text-left">Review: {activeQuizData.title}</h2>
+                      <button onClick={onBackToStart} className="bg-gray-200 text-brown-dark font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition flex-shrink-0">
                           Back to Start
                       </button>
                   </div>
@@ -396,34 +410,74 @@
                           const correctOptionText = question.options[question.correctIndex];
 
                           return (
-                              <div key={question.id} className="p-4 bg-gray-50 rounded-lg border-l-4 border-sky-500">
-                                  <p className="font-bold text-gray-800 mb-2">Question {index + 1}: {question.text}</p>
+                              <div key={question.id} className="p-4 bg-beige-light rounded-lg border-l-4 border-brown">
+                                  <p className="font-bold text-brown-dark mb-2">Question {index + 1}: {question.text}</p>
                                   <div className="mt-2 text-sm space-y-2">
-                                      <div className={`flex items-start p-2 rounded ${isCorrect ? 'bg-emerald-100' : 'bg-red-100'}`}>
-                                          {isCorrect ? <CheckCircleIcon className="w-5 h-5 mr-2 text-emerald-500 flex-shrink-0 mt-0.5" /> : <XCircleIcon className="w-5 h-5 mr-2 text-red-500 flex-shrink-0 mt-0.5" />}
+                                      <div className={`flex items-start p-2 rounded ${isCorrect ? 'bg-green-100' : 'bg-red-100'}`}>
+                                          {isCorrect ? <CheckCircleIcon className="w-5 h-5 mr-2 text-feedback-correct flex-shrink-0 mt-0.5" /> : <XCircleIcon className="w-5 h-5 mr-2 text-feedback-incorrect flex-shrink-0 mt-0.5" />}
                                           <div>
                                               <span className="font-semibold text-gray-700">Your Answer: </span>
-                                              <span className={isCorrect ? 'text-emerald-700' : 'text-red-700'}>{userAnswer !== undefined ? selectedOptionText : 'Ran out of time'}</span>
+                                              <span className={isCorrect ? 'text-feedback-correct' : 'text-feedback-incorrect'}>{userAnswer !== undefined ? selectedOptionText : 'Ran out of time'}</span>
                                           </div>
                                       </div>
                                       {!isCorrect && (
-                                          <div className="flex items-start p-2 rounded bg-emerald-100">
-                                               <CheckCircleIcon className="w-5 h-5 mr-2 text-emerald-500 flex-shrink-0 mt-0.5" />
+                                          <div className="flex items-start p-2 rounded bg-green-100">
+                                               <CheckCircleIcon className="w-5 h-5 mr-2 text-feedback-correct flex-shrink-0 mt-0.5" />
                                                <div>
                                                   <span className="font-semibold text-gray-700">Correct Answer: </span>
-                                                  <span className="text-emerald-700">{correctOptionText}</span>
+                                                  <span className="text-feedback-correct">{correctOptionText}</span>
                                                </div>
                                           </div>
                                       )}
                                   </div>
                                   <div className="mt-3 pt-3 border-t border-gray-200">
-                                      <p className="font-semibold text-sky-600 text-sm">Explanation:</p>
+                                      <p className="font-semibold text-brown text-sm">Explanation:</p>
                                       <p className="text-gray-600 text-sm">{question.explanation}</p>
                                   </div>
                               </div>
                           );
                       })}
                   </div>
+              </div>
+          );
+      };
+
+      const ProgressCircle = ({ percentage, size = 60 }) => {
+          const strokeWidth = 5;
+          const radius = (size - strokeWidth) / 2;
+          const circumference = 2 * Math.PI * radius;
+          const offset = circumference - (percentage / 100) * circumference;
+
+          const getStrokeColor = (p) => {
+              if (p >= 80) return 'stroke-feedback-correct';
+              if (p >= 50) return 'stroke-brown';
+              return 'stroke-amber-500';
+          };
+
+          return (
+              <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+                  <svg className="transform -rotate-90" width={size} height={size}>
+                      <circle
+                          className="stroke-gray-200"
+                          strokeWidth={strokeWidth}
+                          fill="transparent"
+                          r={radius}
+                          cx={size / 2}
+                          cy={size / 2}
+                      />
+                      <circle
+                          className={`transition-all duration-1000 ease-in-out ${getStrokeColor(percentage)}`}
+                          strokeWidth={strokeWidth}
+                          strokeDasharray={circumference}
+                          strokeDashoffset={offset}
+                          strokeLinecap="round"
+                          fill="transparent"
+                          r={radius}
+                          cx={size / 2}
+                          cy={size / 2}
+                      />
+                  </svg>
+                  <span className="absolute text-sm font-bold text-brown-dark">{`${percentage}%`}</span>
               </div>
           );
       };
@@ -438,9 +492,9 @@
 
           return (
               <div className="flex flex-col items-center justify-center h-full text-center p-4 animate-fadeIn">
-                  <BriefcaseIcon className="w-20 h-20 text-sky-500 mb-4" />
+                  <BriefcaseIcon className="w-20 h-20 text-brown mb-4" />
                   <h1 
-                    className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 mb-4 animate-titleGradient"
+                    className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brown-dark via-brown to-brown-light mb-4 animate-titleGradient"
                     style={{ backgroundSize: '200% 200%' }}
                   >
                     Business & Marketing Principles
@@ -449,33 +503,33 @@
                     Select a quiz to test your strategic knowledge. Choose between foundational concepts or apply your skills to real-world scenarios.
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mb-8">
-                      <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-lg flex flex-col items-center">
-                          <h2 className="text-2xl font-bold text-gray-900 mb-2">{RECALL_QUIZ_DATA.title}</h2>
+                      <div className="bg-beige-light/60 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-lg flex flex-col items-center">
+                          <h2 className="text-2xl font-bold text-brown-dark mb-2">{RECALL_QUIZ_DATA.title}</h2>
                           <p className="text-gray-600 mb-4 flex-grow">{RECALL_QUIZ_DATA.description}</p>
                           <button
                               onClick={() => onStartQuiz(RECALL_QUIZ_DATA)}
-                              className="w-full bg-sky-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-sky-700 transition-transform transform hover:scale-105"
+                              className="w-full bg-brown text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-brown-dark transition-transform transform hover:scale-105"
                           >
                               Start Recall Quiz
                           </button>
                       </div>
-                       <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-lg flex flex-col items-center">
-                          <h2 className="text-2xl font-bold text-gray-900 mb-2">{APPLICATION_QUIZ_DATA.title}</h2>
+                       <div className="bg-beige-light/60 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-lg flex flex-col items-center">
+                          <h2 className="text-2xl font-bold text-brown-dark mb-2">{APPLICATION_QUIZ_DATA.title}</h2>
                           <p className="text-gray-600 mb-4 flex-grow">{APPLICATION_QUIZ_DATA.description}</p>
                           <button
                               onClick={() => onStartQuiz(APPLICATION_QUIZ_DATA)}
-                              className="w-full bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-105"
+                              className="w-full bg-brown-light text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-brown transition-transform transform hover:scale-105"
                           >
                               Start Application Quiz
                           </button>
                       </div>
                   </div>
                   {pastResults.length > 0 && (
-                      <div className="w-full max-w-2xl mt-12 animate-fadeIn">
+                      <div className="w-full max-w-3xl mt-12 animate-fadeIn">
                           <div className="flex justify-between items-center mb-4">
-                              <h2 className="text-2xl font-bold text-gray-800 text-left">Quiz History</h2>
+                              <h2 className="text-2xl font-bold text-brown-dark text-left">Quiz History</h2>
                               <div className="flex gap-2">
-                                  <button onClick={onExportResults} className="bg-white text-gray-700 font-bold p-2 rounded-lg hover:bg-gray-100 transition flex items-center gap-2 text-sm border border-gray-300">
+                                  <button onClick={onExportResults} className="bg-beige-light text-brown-dark font-bold p-2 rounded-lg hover:bg-gray-100 transition flex items-center gap-2 text-sm border border-gray-300">
                                       <DocumentArrowDownIcon className="w-4 h-4" /> Export
                                   </button>
                                   <button onClick={handleClearResults} className="bg-red-600 text-white font-bold p-2 rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm">
@@ -485,20 +539,24 @@
                           </div>
                           <div className="space-y-4 max-h-60 overflow-y-auto pr-2">
                               {pastResults.map(result => (
-                                  <div key={result.timestamp} className="bg-white/60 backdrop-blur-sm p-4 rounded-lg text-left flex justify-between items-center border border-gray-200">
+                                  <div key={result.timestamp} className="bg-beige-light/60 backdrop-blur-sm p-4 rounded-xl text-left flex justify-between items-center border border-gray-200 shadow-sm">
                                       <div>
-                                          <h3 className="font-bold text-gray-900">{result.quizTitle}</h3>
-                                          <p className="text-sm text-gray-600">
-                                              {new Date(result.timestamp).toLocaleString()}
+                                          <h3 className="font-bold text-lg text-brown-dark">{result.quizTitle}</h3>
+                                          <p className="text-sm text-gray-500">
+                                              {new Date(result.timestamp).toLocaleString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute:'2-digit' })}
                                           </p>
                                       </div>
-                                      <div className="text-right">
-                                          <p className="text-xl font-bold text-sky-600">
-                                              {result.score}/{result.totalQuestions}
-                                          </p>
-                                          <p className="text-sm font-semibold text-gray-700">
-                                              {Math.round((result.score / result.totalQuestions) * 100)}%
-                                          </p>
+                                      <div className="flex items-center gap-4">
+                                          <div className="text-right">
+                                              <p className="text-2xl font-bold text-brown-dark">
+                                                  {result.score}
+                                                  <span className="text-lg text-gray-500 font-medium"> / {result.totalQuestions}</span>
+                                              </p>
+                                          </div>
+                                          <ProgressCircle 
+                                              percentage={Math.round((result.score / result.totalQuestions) * 100)} 
+                                              size={60}
+                                          />
                                       </div>
                                   </div>
                               ))}
@@ -603,11 +661,11 @@
           const getButtonClass = (index) => {
               const hasBeenAnswered = quizState.answers[currentQuestion.id] !== undefined;
               if (hasBeenAnswered || selectedOption !== null) {
-                  if (index === currentQuestion.correctIndex) return 'bg-emerald-500 text-white animate-pulse';
-                  if (index === selectedOption || index === quizState.answers[currentQuestion.id]?.selectedIndex) return 'bg-red-500 text-white animate-shake';
+                  if (index === currentQuestion.correctIndex) return 'bg-feedback-correct text-white animate-pulse';
+                  if (index === selectedOption || index === quizState.answers[currentQuestion.id]?.selectedIndex) return 'bg-feedback-incorrect text-white animate-shake';
                   return 'bg-gray-100 text-gray-500 opacity-75';
               }
-              return 'bg-white text-gray-800 border border-gray-300 hover:bg-sky-100 hover:border-sky-400';
+              return 'bg-beige-light text-brown-dark border border-gray-300 hover:bg-brown-light/20 hover:border-brown';
           };
           
           const getAnimationClass = () => {
@@ -618,20 +676,20 @@
           }
 
           return (
-              <div className={`p-4 md:p-6 bg-white/80 backdrop-blur-sm shadow-2xl rounded-xl w-full h-full flex flex-col md:flex-row gap-6 animate-fadeIn overflow-hidden ${getAnimationClass()}`}>
+              <div className={`p-4 md:p-6 bg-beige-light/80 backdrop-blur-sm shadow-2xl rounded-xl w-full h-full flex flex-col md:flex-row gap-6 animate-fadeIn overflow-hidden ${getAnimationClass()}`}>
                   <div className="flex-grow flex flex-col">
                       <div className="flex justify-between items-center mb-4">
-                          <span className="text-sm font-bold text-sky-600">Question {quizState.currentQuestionIndex + 1} / {activeQuizData.questions.length}</span>
+                          <span className="text-sm font-bold text-brown">Question {quizState.currentQuestionIndex + 1} / {activeQuizData.questions.length}</span>
                           <div className={`flex items-center text-lg font-bold bg-gray-100 text-gray-800 px-4 py-1 rounded-full transition-colors ${questionTimeLeft <= 5 && questionTimeLeft > 0 ? 'animate-pulseRed text-red-500' : ''}`}>
                              <ClockIcon className="w-5 h-5 mr-2 text-gray-400"/>
                              <span>{questionTimeLeft}s</span>
                           </div>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
-                          <div className="bg-sky-500 h-2 rounded-full" style={{ width: `${progress}%`, transition: 'width 0.5s ease-in-out' }}></div>
+                          <div className="bg-brown h-2 rounded-full" style={{ width: `${progress}%`, transition: 'width 0.5s ease-in-out' }}></div>
                       </div>
                       <div className="flex-grow overflow-y-auto pr-2">
-                          <h2 className="text-xl md:text-2xl font-semibold mb-6 text-gray-900">{currentQuestion.text}</h2>
+                          <h2 className="text-xl md:text-2xl font-semibold mb-6 text-brown-dark">{currentQuestion.text}</h2>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {currentQuestion.options.map((option, index) => (
                                   <button
@@ -647,13 +705,13 @@
                           </div>
                       </div>
                       {feedback && (
-                          <div className={`mt-6 p-4 rounded-lg flex items-center text-lg ${feedback.type === 'correct' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                          <div className={`mt-6 p-4 rounded-lg flex items-center text-lg ${feedback.type === 'correct' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                               {feedback.type === 'correct' ? <CheckCircleIcon className="w-6 h-6 mr-3"/> : <XCircleIcon className="w-6 h-6 mr-3"/>}
                               {feedback.message}
                           </div>
                       )}
                   </div>
-                  <div className="w-full md:w-64 lg:w-80 flex-shrink-0 bg-gray-50/80 p-4 rounded-xl flex flex-col">
+                  <div className="w-full md:w-64 lg:w-80 flex-shrink-0 bg-beige/80 p-4 rounded-xl flex flex-col">
                       <QuestionNav
                           activeQuizData={activeQuizData}
                           answers={quizState.answers}
@@ -869,11 +927,11 @@
                        <Modal title="Welcome Back!" onClose={() => setSavedSession(null)}>
                           <p className="text-gray-700 mb-6">You have a quiz in progress. Would you like to resume where you left off?</p>
                           <div className="flex justify-around">
-                              <button onClick={resumeQuiz} className="bg-sky-600 text-white font-bold py-2 px-6 rounded-md hover:bg-sky-700 transition">Resume</button>
+                              <button onClick={resumeQuiz} className="bg-brown text-white font-bold py-2 px-6 rounded-md hover:bg-brown-dark transition">Resume</button>
                               <button onClick={() => {
                                   const quizData = savedSession.quizId === RECALL_QUIZ_DATA.quizId ? RECALL_QUIZ_DATA : APPLICATION_QUIZ_DATA;
                                   startNewQuiz(quizData);
-                               }} className="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-md hover:bg-gray-300 transition">Start Over</button>
+                               }} className="bg-gray-200 text-brown-dark font-bold py-2 px-6 rounded-md hover:bg-gray-300 transition">Start Over</button>
                           </div>
                       </Modal>
                   )}
@@ -882,7 +940,7 @@
                           <p className="text-gray-700 mb-6">Are you sure you want to end the quiz? Your current progress will be lost.</p>
                           <div className="flex justify-around">
                               <button onClick={handleEndQuiz} className="bg-red-600 text-white font-bold py-2 px-6 rounded-md hover:bg-red-700 transition">Confirm</button>
-                              <button onClick={() => setIsEndQuizModalOpen(false)} className="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-md hover:bg-gray-300 transition">Cancel</button>
+                              <button onClick={() => setIsEndQuizModalOpen(false)} className="bg-gray-200 text-brown-dark font-bold py-2 px-6 rounded-md hover:bg-gray-300 transition">Cancel</button>
                           </div>
                       </Modal>
                   )}
