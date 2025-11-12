@@ -1,0 +1,5 @@
+{
+  "name": "Offline Smart Quiz",
+  "description": "A fully-featured, offline-capable quiz application designed for business and marketing students. It includes state persistence, progress tracking, and detailed answer reviews, all with a professional and motivating UI.",
+  "requestFramePermissions": []
+}

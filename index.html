@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Offline Smart Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background-color: #0f172a;
+        background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxMjAwIDgwMCI+CiAgICA8ZGVmcz4KICAgICAgICA8cGF0dGVybiBpZD0icGF0dGVybiIgパターンUnitsPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSg0NSkiPgogICAgICAgICAgICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ0cmFuc3BhcmVudCIvPgogICAgICAgICAgICA8dGV4dCB4PSIwIiB5PSI0MCIgZm9udC1mYW1pbHk9ImFyaWFsIiBmb250LXNpemU9IjQwIiBmaWxsPSIjRkJCRjI0IiBmaWxsLW9wYWNpdHk9IjAuMDUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDc1KSI+JDwvdGV4dD4KICAgICAgICAgICAgPHBhdGggZD0iTSAyMCA4MCBMIDQwIDYwIEwgNjAgNzAgTCA4MCA1MCBMIDEwMCA2NSBMIDEyMCA0NSBMIDE0MCA1NSIgc3Ryb2tlPSIjMEVCQjg1IiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1Ii8+CiAgICAgICAgICAgIDxjaXJjbGUgY3g9IjEwMCIgY3k9IjEwMCIgcj0iMjUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZCRkYyNCIgc3Ryb2tlLXdpZHRoPSIxIiBzdHJva2Utb3BhY2l0eT0iMC4wNSIvPgogICAgICAgIDwvcGF0dGVybj4KICAgIDwvZGVmcz4KICAgIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMwZjE3MmEiLz4KICAgIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcGF0dGVybikiLz4KPC9zdmc+');
+        background-attachment: fixed;
+        background-size: cover;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            keyframes: {
+              shake: {
+                '0%, 100%': { transform: 'translateX(0)' },
+                '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-10px)' },
+                '20%, 40%, 60%, 80%': { transform: 'translateX(10px)' },
+              },
+              glow: {
+                '0%, 100%': { boxShadow: '0 0 5px #34d399, 0 0 10px #34d399' },
+                '50%': { boxShadow: '0 0 20px #34d399, 0 0 30px #34d399' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              pulseRed: {
+                '0%, 100%': { color: 'white', transform: 'scale(1)' },
+                '50%': { color: '#ef4444', transform: 'scale(1.1)' },
+              },
+              titleGradient: {
+                '0%': { 'background-position': '0% 50%' },
+                '50%': { 'background-position': '100% 50%' },
+                '100%': { 'background-position': '0% 50%' },
+              },
+              'timer-warning-bg': {
+                '0%, 100%': { 'background-color': 'rgba(15, 23, 42, 0)' },
+                '50%': { 'background-color': 'rgba(127, 29, 29, 0.5)' },
+              },
+              'correct-celebration': {
+                '0%': { 'box-shadow': 'inset 0 0 0 0 rgba(251, 191, 36, 0)' },
+                '50%': { 'box-shadow': 'inset 0 0 150px 75px rgba(251, 191, 36, 0.4)' },
+                '100%': { 'box-shadow': 'inset 0 0 0 0 rgba(251, 191, 36, 0)' },
+              },
+              'incorrect-flash': {
+                '0%, 100%': { 'background-color': 'rgba(15, 23, 42, 0)' },
+                '50%': { 'background-color': 'rgba(153, 27, 27, 0.6)' },
+              }
+            },
+            animation: {
+              shake: 'shake 0.82s cubic-bezier(.36,.07,.19,.97) both',
+              glow: 'glow 1.5s ease-in-out infinite',
+              fadeIn: 'fadeIn 0.5s ease-out forwards',
+              pulseRed: 'pulseRed 1.5s ease-in-out infinite',
+              titleGradient: 'titleGradient 6s ease-in-out infinite',
+              'timer-warning-bg': 'timer-warning-bg 1.5s ease-in-out infinite',
+              'correct-celebration': 'correct-celebration 1.5s ease-in-out forwards',
+              'incorrect-flash': 'incorrect-flash 0.8s ease-in-out forwards',
+            },
+          },
+        },
+      }
+    </script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      const { useState, useEffect, useCallback, useMemo, useRef } = React;
+
+      // --- From constants.ts ---
+      const CORRECT_MESSAGES = [
+          "Great job!",
+          "You’re on fire!",
+          "Brilliant answer!",
+          "Keep going, champion!",
+          "Excellent! That's correct.",
+          "Outstanding business acumen!",
+          "Perfectly executed!",
+          "You've clearly mastered this topic.",
+          "That's the right strategy!",
+          "A textbook-perfect answer!"
+      ];
+      const INCORRECT_MESSAGES = [
+          "Almost there, try again!",
+          "Don’t worry, you’ve got this!",
+          "Mistakes help us learn.",
+          "Next one will be better!",
+          "Not quite, but a good attempt.",
+          "That's a common misconception.",
+          "Think about it from another angle.",
+          "Every expert was once a beginner.",
+          "Persistence is key to success.",
+          "Let's review this concept later."
+      ];
+      const RECALL_QUIZ_DATA = {
+          quizId: "business_marketing_recall",
+          title: "Information Recall",
+          description: "This section tests your direct knowledge of the definitions and concepts.",
+          questions: [
+              { "id": 1, "timeLimit": 30, "text": "What is the primary goal of the marketing process?", "options": ["To maximize company profits only.", "To create value for customers and build strong relationships.", "To sell products aggressively.", "To focus only on advertising."], "correctIndex": 1, "explanation": "The core of modern marketing is about creating value for customers to capture value from them in return, primarily through building strong relationships." },
+              { "id": 2, "timeLimit": 30, "text": "The Marketing Mix, also known as the 4Ps, includes Product, Price, Place, and...?", "options": ["Promotion", "People", "Process", "Planning"], "correctIndex": 0, "explanation": "The 4Ps of the Marketing Mix are Product, Price, Place, and Promotion." },
+              { "id": 3, "timeLimit": 30, "text": "What are \"Needs\" according to the text?", "options": ["Wants backed by buying power.", "The form needs take as shaped by culture.", "States of deprivation like food, clothing, and safety.", "The desire for a specific product."], "correctIndex": 2, "explanation": "Needs are fundamental states of felt deprivation, essential for survival and well-being." },
+              { "id": 4, "timeLimit": 30, "text": "What defines \"Demands\"?", "options": ["Basic human requirements.", "Needs shaped by personality.", "Wants backed by buying power.", "The company's production goals."], "correctIndex": 2, "explanation": "Demands are human wants that are backed by the ability to pay (buying power)." },
+              { "id": 5, "timeLimit": 30, "text": "What is Marketing Myopia?", "options": ["Focusing on the long-term needs of society.", "Focusing only on existing wants and losing sight of underlying consumer needs.", "Focusing on a wide range of products.", "Focusing on international markets."], "correctIndex": 1, "explanation": "Marketing myopia is the mistake of paying more attention to the specific products a company offers than to the benefits and experiences produced by these products, thus failing to see the underlying customer need." },
+              { "id": 6, "timeLimit": 30, "text": "Which concept holds that consumers will favor products that are available and highly affordable?", "options": ["Product Concept", "Selling Concept", "Production Concept", "Marketing Concept"], "correctIndex": 2, "explanation": "The Production Concept focuses on achieving high production efficiency, low costs, and mass distribution." },
+              { "id": 7, "timeLimit": 30, "text": "The concept that focuses on continuous product improvements and quality is the:", "options": ["Production Concept", "Selling Concept", "Marketing Concept", "Product Concept"], "correctIndex": 3, "explanation": "The Product Concept holds that consumers will favor products that offer the most in quality, performance, and innovative features." },
+              { "id": 8, "timeLimit": 30, "text": "Which concept relies on a large-scale selling and promotion effort to sell products?", "options": ["Selling Concept", "Marketing Concept", "Societal Marketing Concept", "Product Concept"], "correctIndex": 0, "explanation": "The Selling Concept is an inside-out perspective that assumes consumers will not buy enough of the firm's products unless it undertakes a large-scale selling and promotion effort." },
+              { "id": 9, "timeLimit": 30, "text": "Which orientation focuses on knowing the needs and wants of target markets and delivering satisfaction better than competitors?", "options": ["Production Concept", "Selling Concept", "Marketing Concept", "Product Concept"], "correctIndex": 2, "explanation": "The Marketing Concept is an outside-in perspective that focuses on customer needs to create products and services that deliver satisfaction." },
+              { "id": 10, "timeLimit": 30, "text": "The Societal Marketing Concept considers consumer wants, company requirements, and...?", "options": ["Society's long-run interests.", "Competitors' strategies.", "Production efficiency.", "Short-term profits."], "correctIndex": 0, "explanation": "The Societal Marketing Concept suggests that marketing strategy should deliver value to customers in a way that maintains or improves both the consumer's and society's well-being." },
+              { "id": 11, "timeLimit": 30, "text": "What is a brand's Value Proposition?", "options": ["The price of the product.", "The set of benefits or values a company promises to deliver.", "The company's internal mission.", "The advertising slogan."], "correctIndex": 1, "explanation": "A brand's value proposition is the promise of value to be delivered. It's the primary reason a prospect should buy from you." },
+              { "id": 12, "timeLimit": 30, "text": "Dividing the market into distinct groups of buyers is known as:", "options": ["Target Marketing", "Market Segmentation", "Value Proposition", "Marketing Mix"], "correctIndex": 1, "explanation": "Market segmentation is the process of dividing a broad consumer or business market into sub-groups of consumers based on some type of shared characteristics." },
+              { "id": 13, "timeLimit": 30, "text": "What is the definition of a company's mission statement?", "options": ["A list of its products and services.", "Its financial goals for the year.", "The organization's purpose in the larger environment.", "The marketing department's objectives."], "correctIndex": 2, "explanation": "A mission statement defines the company's purpose, what it wants to accomplish in the larger environment." },
+              { "id": 14, "timeLimit": 30, "text": "The collection of businesses and products that make up a company is called its:", "options": ["Strategic Plan", "Business Portfolio", "Marketing Mix", "Mission Statement"], "correctIndex": 1, "explanation": "The business portfolio is the collection of businesses and products that make up the company." },
+              { "id": 15, "timeLimit": 30, "text": "In the BCG Matrix, what are \"Stars\"?", "options": ["Products with low growth and low market share.", "Products with high growth and high market share.", "Products with low growth and high market share.", "Products with high growth and low market share."], "correctIndex": 1, "explanation": "Stars are high-growth, high-share businesses or products. They often need heavy investments to finance their rapid growth." },
+              { "id": 16, "timeLimit": 30, "text": "What is a \"Cash Cow\" in the BCG Matrix?", "options": ["A product in a high-growth market with a low share.", "A product in a low-growth market with a high market share.", "A product that is new and unprofitable.", "A product that needs to be sold immediately."], "correctIndex": 1, "explanation": "Cash Cows are low-growth, high-share businesses or products. These established and successful SBUs need less investment to hold their market share and produce a lot of cash." },
+              { "id": 17, "timeLimit": 30, "text": "\"Question Marks\" in the BCG matrix are products with:", "options": ["Low market share in a low-growth market.", "High market share in a low-growth market.", "Low market share in a high-growth market.", "High market share in a high-growth market."], "correctIndex": 2, "explanation": "Question Marks are low-share business units in high-growth markets. They require a lot of cash to hold their share, let alone increase it." },
+              { "id": 18, "timeLimit": 30, "text": "The strategy of increasing sales of current products to current market segments is called:", "options": ["Market Development", "Product Development", "Diversification", "Market Penetration"], "correctIndex": 3, "explanation": "Market Penetration involves making more sales to current customers without changing the original products." },
+              { "id": 19, "timeLimit": 30, "text": "Offering new or modified products to existing market segments is known as:", "options": ["Market Penetration", "Product Development", "Market Development", "Diversification"], "correctIndex": 1, "explanation": "Product Development involves offering modified or new products to current markets." },
+              { "id": 20, "timeLimit": 30, "text": "The strategy of entering new markets with new products is called:", "options": ["Diversification", "Market Penetration", "Product Development", "Market Development"], "correctIndex": 0, "explanation": "Diversification is the strategy of starting up or acquiring businesses outside the company's current products and markets." },
+              { "id": 21, "timeLimit": 30, "text": "What does SWOT analysis evaluate?", "options": ["Sales, Wages, Operations, and Taxes.", "Stars, Weaknesses, Opportunities, and Threats.", "Strengths, Weaknesses, Opportunities, and Threats.", "Strategy, Work, Organization, and Time."], "correctIndex": 2, "explanation": "SWOT analysis is a strategic planning tool used to evaluate the Strengths, Weaknesses, Opportunities, and Threats involved in a project or in a business venture." },
+              { "id": 22, "timeLimit": 30, "text": "A market-oriented mission statement defines the business in terms of:", "options": ["The products it sells.", "Satisfying basic customer needs.", "The technology it uses.", "The profit it makes."], "correctIndex": 1, "explanation": "A market-oriented mission statement focuses on satisfying customer needs rather than on the product itself." },
+              { "id": 23, "timeLimit": 30, "text": "The marketing environment consists of actors and forces ______ marketing.", "options": ["inside", "outside", "unrelated to", "controlled by"], "correctIndex": 1, "explanation": "The marketing environment includes the actors and forces outside marketing that affect marketing management's ability to build and maintain successful relationships with target customers." },
+              { "id": 24, "timeLimit": 30, "text": "The Microenvironment consists of actors ______ the company.", "options": ["far from", "close to", "unrelated to", "in the entire economy"], "correctIndex": 1, "explanation": "The microenvironment consists of the actors close to the company that affect its ability to serve its customers, such as the company itself, suppliers, marketing intermediaries, customer markets, competitors, and publics." },
+              { "id": 25, "timeLimit": 30, "text": "Which of the following is an actor in the company's Microenvironment?", "options": ["The economy", "Suppliers", "Technological trends", "Cultural norms"], "correctIndex": 1, "explanation": "Suppliers are a key part of the microenvironment as they provide the resources needed by the company to produce its goods and services." },
+              { "id": 26, "timeLimit": 30, "text": "Resellers, physical distribution firms, and marketing services agencies are all examples of:", "options": ["Suppliers", "Publics", "Marketing Intermediaries", "Competitors"], "correctIndex": 2, "explanation": "Marketing intermediaries help the company promote, sell, and distribute its products to final buyers." },
+              { "id": 27, "timeLimit": 30, "text": "Any group that has an actual or potential interest in or impact on an organization is a:", "options": ["Customer", "Competitor", "Supplier", "Public"], "correctIndex": 3, "explanation": "A public is any group that has an actual or potential interest in or impact on an organization's ability to achieve its objectives." },
+              { "id": 28, "timeLimit": 30, "text": "The Macroenvironment includes which of the following forces?", "options": ["Suppliers", "Competitors", "Economic forces", "The company's employees"], "correctIndex": 2, "explanation": "The macroenvironment consists of the larger societal forces that affect the microenvironment—demographic, economic, natural, technological, political, and cultural forces." },
+              { "id": 29, "timeLimit": 30, "text": "PESTEL analysis includes Political, Economic, Social, Technological, Natural, and...?", "options": ["Logical", "Legal", "Local", "Leadership"], "correctIndex": 1, "explanation": "PESTEL is a framework for analyzing the macro-environmental factors: Political, Economic, Social, Technological, Environmental (Natural), and Legal." },
+              { "id": 30, "timeLimit": 30, "text": "Factors like inflation, unemployment, and exchange rates belong to which macro environment category?", "options": ["Political", "Social", "Economic", "Technological"], "correctIndex": 2, "explanation": "The economic environment consists of economic factors that affect consumer purchasing power and spending patterns." },
+              { "id": 31, "timeLimit": 30, "text": "A company's own departments, like finance and R&D, are considered part of the:", "options": ["Macroenvironment", "Microenvironment", "External environment", "Publics"], "correctIndex": 1, "explanation": "The company itself, including its various departments, is the first actor in the microenvironment. It's often called the internal environment." },
+              { "id": 32, "timeLimit": 30, "text": "The natural environment is concerned with issues such as shortages of raw materials and:", "options": ["Increased pollution", "Advertising costs", "Supplier relationships", "Employee motivation"], "correctIndex": 0, "explanation": "The natural environment involves the physical environment and the natural resources that are needed as inputs by marketers or that are affected by marketing activities. Key trends include shortages of raw materials, increased pollution, and increased government intervention." },
+              { "id": 33, "timeLimit": 30, "text": "A consumer market includes all individuals and households that buy goods for:", "options": ["Resale", "Business use", "Personal consumption", "Government use"], "correctIndex": 2, "explanation": "The consumer market consists of all the individuals and households that buy or acquire goods and services for personal consumption." },
+              { "id": 34, "timeLimit": 30, "text": "Which factor is NOT one of the main four influencing consumer behavior?", "options": ["Cultural", "Social", "Economic", "Personal"], "correctIndex": 2, "explanation": "The main groups of factors influencing consumer behavior are Cultural, Social, Personal, and Psychological. A person's 'economic situation' is a personal factor, but 'Economic' as a broad category is part of the macroenvironment, not one of the core four influences on individual behavior." },
+              { "id": 35, "timeLimit": 30, "text": "The most basic level in Maslow's Hierarchy of Needs is:", "options": ["Social Needs", "Esteem Needs", "Physiological Needs", "Safety Needs"], "correctIndex": 2, "explanation": "Physiological needs, such as hunger and thirst, are the most fundamental and must be satisfied first." },
+              { "id": 36, "timeLimit": 30, "text": "The groups a person wishes to join in the future are called:", "options": ["Membership Groups", "Reference Groups", "Aspirational Groups", "Family Groups"], "correctIndex": 2, "explanation": "An aspirational group is one to which the individual wishes to belong." },
+              { "id": 37, "timeLimit": 30, "text": "What are the AIOs used to measure lifestyle?", "options": ["Actions, Ideas, Objections", "Attitudes, Interests, Opinions", "Activities, Interests, Opinions", "Achievements, Income, Occupation"], "correctIndex": 2, "explanation": "A person's lifestyle is profiled by measuring their Activities, Interests, and Opinions (AIOs)." },
+              { "id": 38, "timeLimit": 30, "text": "The change in an individual's behavior arising from experience is called:", "options": ["Motivation", "Perception", "Learning", "Attitude"], "correctIndex": 2, "explanation": "Learning describes changes in an individual's behavior arising from experience." },
+              { "id": 39, "timeLimit": 30, "text": "What is the first stage in the Buyer Decision Process?", "options": ["Information Search", "Need Recognition", "Evaluation of Alternatives", "Purchase Decision"], "correctIndex": 1, "explanation": "The buying process starts with need recognition, where the buyer recognizes a problem or need." },
+              { "id": 40, "timeLimit": 30, "text": "Discomfort caused by post-purchase conflict is known as:", "options": ["Customer Satisfaction", "Cognitive Dissonance", "Brand Loyalty", "Selective Attention"], "correctIndex": 1, "explanation": "Cognitive dissonance is the buyer's discomfort or conflict after making a purchase, often stemming from wondering if they made the right choice." },
+              { "id": 41, "timeLimit": 30, "text": "Which type of buying behavior occurs with low involvement and few differences between brands?", "options": ["Complex Buying Behavior", "Habitual Buying Behavior", "Dissonance-Reducing Buying Behavior", "Variety-Seeking Behavior"], "correctIndex": 1, "explanation": "Habitual buying behavior occurs under conditions of low consumer involvement and little significant brand difference, such as buying salt or sugar." },
+              { "id": 42, "timeLimit": 30, "text": "The process an individual goes through from first learning about an innovation to final regular use is the:", "options": ["Buyer Decision Process", "Adoption Process", "Marketing Process", "Lifestyle Process"], "correctIndex": 1, "explanation": "The adoption process is the mental process through which an individual passes from first hearing about an innovation to final adoption." },
+              { "id": 43, "timeLimit": 30, "text": "In the adopter categories, which group is the first to adopt new ideas?", "options": ["Early Adopters", "Early Majority", "Innovators", "Laggards"], "correctIndex": 2, "explanation": "Innovators are venturesome—they try new ideas at some risk." },
+              { "id": 44, "timeLimit": 30, "text": "A descriptive thought that a person has about something is a:", "options": ["Belief", "Attitude", "Lifestyle", "Motive"], "correctIndex": 0, "explanation": "A belief is a descriptive thought that a person holds about something, which may be based on real knowledge, opinion, or faith." },
+              { "id": 45, "timeLimit": 30, "text": "The most important buying organization in society is the:", "options": ["Company", "Government", "Family", "School"], "correctIndex": 2, "explanation": "The family is the most important consumer buying organization in society. Marketers are interested in the roles and influence of the husband, wife, and children on the purchase of different products and services." },
+              { "id": 46, "timeLimit": 30, "text": "Which of these is a personal factor affecting consumer behavior?", "options": ["Culture", "Family", "Occupation", "Social class"], "correctIndex": 2, "explanation": "Personal factors include the buyer's age and life-cycle stage, occupation, economic situation, lifestyle, and personality and self-concept." },
+              { "id": 47, "timeLimit": 30, "text": "How people select, organize, and interpret information is called:", "options": ["Learning", "Motivation", "Perception", "Attitude"], "correctIndex": 2, "explanation": "Perception is the process by which people select, organize, and interpret information to form a meaningful picture of the world." },
+              { "id": 48, "timeLimit": 30, "text": "Esteem needs in Maslow's hierarchy refer to:", "options": ["Food and water", "Security and safety", "Status and recognition", "Love and belonging"], "correctIndex": 2, "explanation": "Esteem needs refer to the desire for self-esteem, recognition, status, and respect from others." },
+              { "id": 49, "timeLimit": 30, "text": "What is the last stage in the Adoption Process?", "options": ["Trial", "Interest", "Evaluation", "Adoption"], "correctIndex": 3, "explanation": "The final stage is Adoption, where the consumer decides to make full and regular use of the new product." },
+              { "id": 50, "timeLimit": 30, "text": "Which type of buying behavior involves high involvement but few perceived differences among brands?", "options": ["Complex", "Habitual", "Dissonance-Reducing", "Variety-Seeking"], "correctIndex": 2, "explanation": "Dissonance-reducing buying behavior occurs when consumers are highly involved with an expensive, infrequent, or risky purchase but see little difference among brands." }
+          ]
+      };
+      const APPLICATION_QUIZ_DATA = {
+          quizId: "business_marketing_application",
+          title: "Comprehension & Application",
+          description: "This section tests your ability to apply concepts to real-world scenarios.",
+          questions: [
+              { "id": 1, "timeLimit": 45, "text": "A company manufactures high-quality cameras but struggles with sales because they don't research what features customers actually want. This company is most likely following the:", "options": ["Marketing Concept", "Production Concept", "Product Concept", "Selling Concept"], "correctIndex": 2, "explanation": "This scenario demonstrates the Product Concept, which focuses on making the best possible product without necessarily considering customer needs or demand. The assumption is that a good product will sell itself." },
+              { "id": 2, "timeLimit": 45, "text": "An insurance company uses aggressive telemarketing calls to sell its policies, assuming customers won't buy them otherwise. This is a clear example of the:", "options": ["Selling Concept", "Marketing Concept", "Societal Marketing Concept", "Production Concept"], "correctIndex": 0, "explanation": "This is a classic example of the Selling Concept, which relies on heavy promotion and selling efforts to move products that consumers might not otherwise think of buying." },
+              { "id": 3, "timeLimit": 45, "text": "A person needs to travel, wants a luxury car, but can only afford a bus ticket. The bus ticket represents their:", "options": ["Need", "Want", "Demand", "Myopia"], "correctIndex": 2, "explanation": "The need is travel, the want is a luxury car. The demand is what they can actually afford and are willing to buy, which is the bus ticket." },
+              { "id": 4, "timeLimit": 45, "text": "A fast-food chain opens a new branch that uses only organic, locally-sourced ingredients and donates a portion of its profits to environmental charities. This approach best reflects the:", "options": ["Product Concept", "Selling Concept", "Societal Marketing Concept", "Production Concept"], "correctIndex": 2, "explanation": "The Societal Marketing Concept balances three considerations: company profits, consumer wants, and society's long-term interests (in this case, environmental and community well-being)." },
+              { "id": 5, "timeLimit": 45, "text": "The railroad industry in the early 20th century believed they were in the \"railroad business\" instead of the \"transportation business,\" and thus ignored the rise of cars and planes. This is a classic example of:", "options": ["Marketing Mix", "Marketing Myopia", "Market Segmentation", "The Selling Concept"], "correctIndex": 1, "explanation": "Marketing Myopia is the failure to see the bigger picture of what business you are in. The railroads focused on their product (trains) instead of the customer need they were solving (transportation)." },
+              { "id": 6, "timeLimit": 45, "text": "A smartphone company promises \"the most advanced privacy features to keep your life secure.\" This promise is the company's:", "options": ["Market Segment", "Target Market", "Value Proposition", "Production Concept"], "correctIndex": 2, "explanation": "The value proposition is the set of benefits or values a company promises to deliver to customers to satisfy their needs. Here, the benefit is security and privacy." },
+              { "id": 7, "timeLimit": 45, "text": "A company that sells water bottles decides to focus on producing them as cheaply as possible, assuming customers only care about a low price. They are guided by the:", "options": ["Marketing Concept", "Product Concept", "Production Concept", "Selling Concept"], "correctIndex": 2, "explanation": "The Production Concept assumes that consumers will favor products that are available and highly affordable. The focus is on production and distribution efficiency." },
+              { "id": 8, "timeLimit": 45, "text": "Marketing a celebrity like a famous doctor to build their reputation is an example of marketing a(n):", "options": ["Product", "Service", "Person", "Experience"], "correctIndex": 2, "explanation": "Marketing can be applied to more than just physical goods. Person marketing involves activities undertaken to create, maintain, or change attitudes or behavior toward particular people." },
+              { "id": 9, "timeLimit": 45, "text": "Apple's iPhone, which for a long time had high market share in the rapidly growing smartphone market, is a perfect example of a(n):", "options": ["Star", "Cash Cow", "Question Mark", "Dog"], "correctIndex": 0, "explanation": "A 'Star' in the BCG matrix is a product with a high share of a high-growth market. It requires investment to maintain its growth but has strong potential." },
+              { "id": 10, "timeLimit": 45, "text": "Coca-Cola's classic soda has a high market share in a mature, slow-growing soft drink market. According to the BCG matrix, it is a:", "options": ["Star", "Cash Cow", "Question Mark", "Dog"], "correctIndex": 1, "explanation": "A 'Cash Cow' has a high share of a low-growth market. It generates more cash than it needs to maintain its position and can be used to fund other business units." },
+              { "id": 11, "timeLimit": 45, "text": "A tech company launches a new smart home device in a very competitive, high-growth market, but it currently has very few sales. This product is a:", "options": ["Star", "Cash Cow", "Question Mark", "Dog"], "correctIndex": 2, "explanation": "A 'Question Mark' has a low share of a high-growth market. It requires significant investment to grow its share, and the company must decide whether to invest or divest." },
+              { "id": 12, "timeLimit": 45, "text": "A company that sells outdated MP3 players with low market share in a declining market would classify this product as a:", "options": ["Star", "Cash Cow", "Question Mark", "Dog"], "correctIndex": 3, "explanation": "A 'Dog' has a low share of a low-growth market. These products may generate enough cash to maintain themselves but do not promise to be large sources of cash." },
+              { "id": 13, "timeLimit": 45, "text": "McDonald's starts offering a \"buy one, get one free\" deal to encourage its current customers to buy more burgers. This is an example of:", "options": ["Market Development", "Market Penetration", "Product Development", "Diversification"], "correctIndex": 1, "explanation": "Market Penetration is a growth strategy focused on increasing sales of existing products to the existing market segment." },
+              { "id": 14, "timeLimit": 45, "text": "A local coffee shop starts selling its unique coffee beans to customers in a different city via a new website. This strategy is:", "options": ["Market Development", "Market Penetration", "Product Development", "Diversification"], "correctIndex": 0, "explanation": "Market Development is a growth strategy that identifies and develops new market segments for current products. The new market here is a different city." },
+              { "id": 15, "timeLimit": 45, "text": "Apple introduced the Apple Watch, a new product category, to its existing base of iPhone users. This is an example of:", "options": ["Market Development", "Market Penetration", "Product Development", "Diversification"], "correctIndex": 2, "explanation": "Product Development is a growth strategy that offers new or modified products to existing market segments. The Apple Watch was a new product for Apple's existing customer base." },
+              { "id": 16, "timeLimit": 45, "text": "A company that traditionally makes furniture decides to start a new business building and selling houses. This is a clear example of:", "options": ["Market Development", "Market Penetration", "Product Development", "Diversification"], "correctIndex": 3, "explanation": "Diversification is a growth strategy where a company starts up or acquires businesses outside its current products and markets. Furniture and home construction are different industries." },
+              { "id": 17, "timeLimit": 45, "text": "If Google's mission statement was \"We are a search engine company,\" instead of \"organize the world's information,\" it would be an example of a:", "options": ["Market-oriented mission", "Product-oriented mission", "Societal mission", "Customer-oriented mission"], "correctIndex": 1, "explanation": "A product-oriented mission defines the business in terms of its product ('search engine'), while a market-oriented mission defines it in terms of the customer need it fulfills ('organizing information')." },
+              { "id": 18, "timeLimit": 45, "text": "A company identifies that one of its weaknesses is poor customer service, but sees an opportunity in the growing demand for online shopping. This analysis is part of a:", "options": ["BCG Matrix", "PESTEL Analysis", "SWOT Analysis", "Portfolio Analysis"], "correctIndex": 2, "explanation": "SWOT analysis involves evaluating a company's internal Strengths and Weaknesses, and its external Opportunities and Threats." },
+              { "id": 19, "timeLimit": 45, "text": "A new government regulation requires all food products to display detailed nutritional information. For a food company, this is a change in the:", "options": ["Political/Legal macroenvironment", "Economic macroenvironment", "Microenvironment", "Social macroenvironment"], "correctIndex": 0, "explanation": "Government regulations and laws are part of the Political and Legal macroenvironment that shape business operations." },
+              { "id": 20, "timeLimit": 45, "text": "A sudden rise in inflation causes consumers to have less disposable income, reducing sales for luxury goods. This is an impact from the:", "options": ["Technological environment", "Economic environment", "Natural environment", "Company's internal environment"], "correctIndex": 1, "explanation": "Inflation, interest rates, and consumer income levels are all components of the Economic macroenvironment that affect consumer spending." },
+              { "id": 21, "timeLimit": 45, "text": "A growing trend shows that consumers are becoming more health-conscious and prefer organic food. For a food company, this is a factor in the:", "options": ["Social environment", "Political environment", "Economic environment", "Company's microenvironment"], "correctIndex": 0, "explanation": "The Social (or Sociocultural) environment includes shifts in cultural values, beliefs, and trends, such as the move towards healthier lifestyles." },
+              { "id": 22, "timeLimit": 45, "text": "The rise of Artificial Intelligence (AI) allows a marketing company to personalize ads for millions of users instantly. This is an opportunity from the:", "options": ["Social environment", "Natural environment", "Technological environment", "Economic environment"], "correctIndex": 2, "explanation": "New technologies like AI create new opportunities for marketing and product development, and are part of the Technological macroenvironment." },
+              { "id": 23, "timeLimit": 45, "text": "A key supplier for a car manufacturer goes bankrupt, halting production. This issue originates from the manufacturer's:", "options": ["Macroenvironment", "Microenvironment", "Political environment", "Social environment"], "correctIndex": 1, "explanation": "Suppliers are actors close to the company and are part of its Microenvironment. A disruption in the supply chain directly impacts the company's ability to operate." },
+              { "id": 24, "timeLimit": 45, "text": "A newspaper writes a very negative article about a company's environmental impact. This involves which type of public?", "options": ["Financial Publics", "Media Publics", "Government Publics", "Internal Publics"], "correctIndex": 1, "explanation": "Media publics include newspapers, magazines, television stations, and blogs that carry news, features, and editorial opinions." },
+              { "id": 25, "timeLimit": 45, "text": "A company wants to sell its products to the government for use in public schools. This represents which type of customer market?", "options": ["Consumer market", "Business market", "Government market", "International market"], "correctIndex": 2, "explanation": "Government markets consist of government agencies that buy goods and services to produce public services or transfer the goods and services to others who need them." },
+              { "id": 26, "timeLimit": 45, "text": "A drought reduces the availability of a key raw material for a juice company. This is a challenge from the:", "options": ["Political Environment", "Economic Environment", "Natural Environment", "Technological Environment"], "correctIndex": 2, "explanation": "The Natural Environment includes natural resources needed as inputs. Shortages of raw materials, such as a water or fruit due to a drought, are a key concern." },
+              { "id": 27, "timeLimit": 45, "text": "A young student buys the same brand of sneakers that his favorite basketball player endorses. The player is part of the student's:", "options": ["Membership Group", "Family", "Aspirational Group", "Social Class"], "correctIndex": 2, "explanation": "An aspirational group is a group that an individual wishes to belong to. The student aspires to be like the basketball player, making the player a powerful reference point." },
+              { "id": 28, "timeLimit": 45, "text": "A customer is buying a car for the first time. They spend weeks researching online, reading reviews, and test-driving different models. This is an example of:", "options": ["Habitual Buying Behavior", "Variety-Seeking Buying Behavior", "Complex Buying Behavior", "Dissonance-Reducing Buying Behavior"], "correctIndex": 2, "explanation": "Complex buying behavior occurs with high-involvement purchases where there are significant perceived differences among brands. The buyer goes through a full decision process." },
+              { "id": 29, "timeLimit": 45, "text": "Someone buying their usual brand of salt at the supermarket without much thought is demonstrating:", "options": ["Complex Buying Behavior", "Habitual Buying Behavior", "Dissonance-Reducing Buying Behavior", "Post-purchase Behavior"], "correctIndex": 1, "explanation": "Habitual buying behavior is characterized by low involvement and few significant brand differences. It's a routine purchase made out of habit." },
+              { "id": 30, "timeLimit": 45, "text": "A person is buying a new, expensive carpet. They feel it's a high-risk purchase but can't see major differences between the top brands. After the purchase, they worry if they made the right choice. This is:", "options": ["Complex Buying Behavior", "Variety-Seeking Buying Behavior", "Dissonance-Reducing Buying Behavior", "Habitual Buying Behavior"], "correctIndex": 2, "explanation": "Dissonance-reducing behavior involves a high-involvement purchase with few perceived brand differences. The buyer may experience post-purchase dissonance (after-sale discomfort)." },
+              { "id": 31, "timeLimit": 45, "text": "A customer usually buys one brand of chips but decides to try a new flavor from another brand just for a change. This is an example of:", "options": ["Complex Buying Behavior", "Variety-Seeking Buying Behavior", "Dissonance-Reducing Buying Behavior", "Habitual Buying Behavior"], "correctIndex": 1, "explanation": "Variety-seeking behavior occurs in low-involvement situations where there are significant perceived brand differences. Consumers often do a lot of brand switching for the sake of variety." },
+              { "id": 32, "timeLimit": 45, "text": "Ahmed feels hungry and realizes he needs to buy food. He is in which stage of the buyer decision process?", "options": ["Information Search", "Need Recognition", "Evaluation of Alternatives", "Purchase Decision"], "correctIndex": 1, "explanation": "The buyer decision process begins with Need Recognition, when the consumer recognizes a problem or need—in this case, hunger." },
+              { "id": 33, "timeLimit": 45, "text": "After deciding she needs a new laptop, Sarah asks friends for recommendations and reads online reviews. She is in the _______ stage.", "options": ["Need Recognition", "Purchase Decision", "Information Search", "Post-Purchase Behavior"], "correctIndex": 2, "explanation": "During the Information Search stage, the consumer is motivated to search for more information from various sources, such as personal contacts and online reviews." },
+              { "id": 34, "timeLimit": 45, "text": "A father buying toys for his young children is influenced by his parental role. This is an example of a:", "options": ["Cultural Factor", "Social Factor", "Personal Factor", "Psychological Factor"], "correctIndex": 1, "explanation": "A person's role and status within a group (like a family) are Social Factors that influence their buying behavior." },
+              { "id": 35, "timeLimit": 45, "text": "A person who values adventure and an outdoor lifestyle is more likely to buy an SUV than a small city car. This choice is most influenced by which personal factor?", "options": ["Age", "Occupation", "Economic Situation", "Lifestyle"], "correctIndex": 3, "explanation": "Lifestyle is a person's pattern of living as expressed in their activities, interests, and opinions. It captures something more than the person's social class or personality." },
+              { "id": 36, "timeLimit": 45, "text": "A consumer sees an ad for a new phone but only remembers the positive features while ignoring the negative ones mentioned. This is an example of:", "options": ["Selective Attention", "Selective Distortion", "Selective Retention", "Subliminal Advertising"], "correctIndex": 2, "explanation": "Selective Retention means that consumers are likely to remember good points made about a brand they favor and forget good points made about competing brands." },
+              { "id": 37, "timeLimit": 45, "text": "According to Maslow, a person who has fulfilled their safety and social needs will next be motivated to satisfy their:", "options": ["Physiological needs", "Esteem needs", "Self-actualization needs", "Basic needs"], "correctIndex": 1, "explanation": "In Maslow's hierarchy, after physiological, safety, and social needs are met, a person moves on to fulfill Esteem needs for recognition and status." },
+              { "id": 38, "timeLimit": 45, "text": "A customer tries a free sample of a new coffee brand at the store. This corresponds to which stage of the adoption process?", "options": ["Awareness", "Interest", "Evaluation", "Trial"], "correctIndex": 3, "explanation": "In the Trial stage of the adoption process, the consumer tries the new product on a small scale to improve their estimate of its value." },
+              { "id": 39, "timeLimit": 45, "text": "A successful lawyer is likely to buy expensive suits and luxury cars because their ______ affects their buying behavior.", "options": ["Age", "Occupation", "Subculture", "Personality"], "correctIndex": 1, "explanation": "A person's Occupation affects the goods and services bought. Marketers try to identify the occupational groups that have an above-average interest in their products." },
+              { "id": 40, "timeLimit": 45, "text": "A customer buys a new phone and is very happy because its performance exceeded their expectations. This is a positive outcome of the ________ stage.", "options": ["Information Search", "Purchase Decision", "Post-Purchase Behavior", "Need Recognition"], "correctIndex": 2, "explanation": "The Post-Purchase Behavior stage is where the consumer takes further action after purchase, based on their satisfaction or dissatisfaction. Exceeding expectations leads to satisfaction." }
+          ]
+      };
+
+      // --- From components/icons.tsx ---
+      const CheckCircleIcon = (props) => (
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+      );
+      const XCircleIcon = (props) => (
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+      );
+      const ClockIcon = (props) => (
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+      );
+      const XMarkIcon = (props) => (
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+      );
+      const AwardIcon = (props) => (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9a9.75 9.75 0 0 1 0-13.5h9a9.75 9.75 0 0 1 0 13.5Z" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 15.375V21.75m0-11.25L9.75 5.25m2.25 0L12 3m2.25 2.25L14.25 3m-4.5 2.25L7.5 3m9 2.25L16.5 3" />
+        </svg>
+      );
+      const BriefcaseIcon = (props) => (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.075c0 1.313-.97 2.5-2.25 2.5h-12c-1.28 0-2.25-1.187-2.25-2.5V14.15M17.25 6.375v2.625a2.25 2.25 0 0 1-2.25 2.25h-6a2.25 2.25 0 0 1-2.25-2.25V6.375m10.5 0v-2.625a2.25 2.25 0 0 0-2.25-2.25h-6a2.25 2.25 0 0 0-2.25-2.25v2.625" />
+        </svg>
+      );
+      const FlagIcon = (props) => (
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
+          </svg>
+      );
+      const PowerIcon = (props) => (
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5.636 5.636a9 9 0 1 0 12.728 0M12 3v9" />
+          </svg>
+      );
+      const DocumentArrowDownIcon = (props) => (
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+      );
+      const TrashIcon = (props) => (
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+          </svg>
+      );
+      
+      // --- From components/Modal.tsx ---
+      const Modal = ({ title, children, onClose, hideCloseButton = false }) => {
+          return (
+              <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+                  <div className="bg-slate-800 rounded-xl shadow-2xl p-6 w-full max-w-md border border-slate-700 animate-fadeIn">
+                      <div className="flex justify-between items-center mb-4">
+                          <h2 className="text-2xl font-bold text-slate-100">{title}</h2>
+                          {!hideCloseButton && (
+                              <button onClick={onClose} className="text-slate-400 hover:text-white">
+                                  <XMarkIcon className="w-6 h-6" />
+                              </button>
+                          )}
+                      </div>
+                      <div>
+                          {children}
+                      </div>
+                  </div>
+              </div>
+          );
+      };
+
+      // --- From components/QuestionNav.tsx ---
+      const QuestionNav = ({ activeQuizData, answers, currentQuestionIndex, onSelectQuestion, onFinishQuiz, onEndQuizRequest }) => {
+          const totalQuestions = activeQuizData.questions.length;
+          const lastQuestionId = activeQuizData.questions[totalQuestions - 1]?.id;
+
+          const getStatusClass = (index) => {
+              if (index === currentQuestionIndex) {
+                  return 'bg-sky-600 ring-2 ring-sky-300 text-white';
+              }
+              const questionId = activeQuizData.questions[index]?.id;
+              if (answers[questionId]) {
+                  return answers[questionId].isCorrect ? 'bg-emerald-600 hover:bg-emerald-500 text-white' : 'bg-red-600 hover:bg-red-500 text-white';
+              }
+              return 'bg-slate-700 hover:bg-slate-600 text-slate-300';
+          };
+
+          return (
+              <div className="flex flex-col h-full">
+                  <h3 className="text-lg font-bold mb-4 text-slate-200">Questions</h3>
+                  <div className="flex-grow overflow-y-auto pr-2">
+                      <div className="grid grid-cols-5 gap-2">
+                          {Array.from({ length: totalQuestions }, (_, i) => (
+                              <button
+                                  key={i}
+                                  onClick={() => onSelectQuestion(i)}
+                                  className={`w-10 h-10 rounded-md font-bold text-sm transition-all ${getStatusClass(i)}`}
+                              >
+                                  {i + 1}
+                              </button>
+                          ))}
+                      </div>
+                  </div>
+                   {answers[lastQuestionId] && (
+                      <button 
+                          onClick={onFinishQuiz}
+                          className="mt-4 w-full flex items-center justify-center bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-yellow-700 transition-transform transform hover:scale-105 animate-fadeIn"
+                      >
+                          <FlagIcon className="w-5 h-5 mr-2" />
+                          Finish & See Results
+                      </button>
+                   )}
+                  <button
+                      onClick={onEndQuizRequest}
+                      className="mt-2 w-full flex items-center justify-center bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-red-800 transition-transform transform hover:scale-105"
+                  >
+                      <PowerIcon className="w-5 h-5 mr-2" />
+                      End Quiz
+                  </button>
+              </div>
+          );
+      };
+
+      // --- From components/ResultsView.tsx ---
+      const ResultsView = ({ quizState, activeQuizData, onReview, onRetry }) => {
+          const results = useMemo(() => {
+              const totalQuestions = activeQuizData.questions.length;
+              const correctAnswers = Object.values(quizState.answers).filter((a) => a.isCorrect).length;
+              const scorePercentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+              return { totalQuestions, correctAnswers, scorePercentage };
+          }, [quizState, activeQuizData]);
+
+          const getMotivationalQuote = (percentage) => {
+              if (percentage >= 90) return "Exceptional performance! Your expertise is truly impressive.";
+              if (percentage >= 75) return "Excellent work! You have a strong grasp of the material.";
+              if (percentage >= 50) return "Good job! You're building a solid foundation of knowledge.";
+              return "A great effort! Every quiz is a step forward in your learning journey.";
+          }
+
+          return (
+              <div className="text-center p-8 bg-slate-800/50 rounded-xl shadow-2xl animate-fadeIn">
+                  <AwardIcon className="w-20 h-20 text-yellow-400 mx-auto mb-4" />
+                  <h2 className="text-4xl font-bold text-slate-100 mb-2">Quiz Completed!</h2>
+                  <p className="text-slate-400 mb-2 text-lg">You finished the "{activeQuizData.title}" quiz.</p>
+                  <p className="text-slate-400 mb-8">{getMotivationalQuote(results.scorePercentage)}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                      <div className="bg-slate-900 p-4 rounded-lg">
+                          <p className="text-sm text-slate-400">Your Score</p>
+                          <p className="text-3xl font-bold text-sky-400">{results.scorePercentage}%</p>
+                      </div>
+                       <div className="bg-slate-900 p-4 rounded-lg">
+                          <p className="text-sm text-slate-400">Correct Answers</p>
+                          <p className="text-3xl font-bold text-slate-100">{results.correctAnswers} <span className="text-lg text-slate-500">/ {results.totalQuestions}</span></p>
+                      </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row justify-center gap-4">
+                      <button onClick={onRetry} className="bg-sky-600 text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-sky-700 transition-transform transform hover:scale-105">
+                          Retry Quiz
+                      </button>
+                      <button onClick={onReview} className="bg-slate-700 text-slate-200 font-bold py-3 px-6 rounded-lg shadow-md hover:bg-slate-600 transition-transform transform hover:scale-105">
+                          Review Answers
+                      </button>
+                  </div>
+              </div>
+          );
+      };
+
+      // --- From components/ReviewView.tsx ---
+      const ReviewView = ({ quizState, activeQuizData, onBackToStart }) => {
+          return (
+              <div className="p-4 md:p-8 bg-slate-800/50 rounded-xl shadow-2xl w-full animate-fadeIn">
+                  <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-3xl font-bold text-slate-100">Review: {activeQuizData.title}</h2>
+                      <button onClick={onBackToStart} className="bg-slate-700 text-slate-200 font-bold py-2 px-4 rounded-lg hover:bg-slate-600 transition">
+                          Back to Start
+                      </button>
+                  </div>
+                  <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+                      {activeQuizData.questions.map((question, index) => {
+                          const userAnswer = quizState.answers[question.id];
+                          const isCorrect = userAnswer?.isCorrect;
+                          const selectedOptionText = userAnswer !== undefined ? question.options[userAnswer.selectedIndex] : "Not Answered";
+                          const correctOptionText = question.options[question.correctIndex];
+
+                          return (
+                              <div key={question.id} className="p-4 bg-slate-900 rounded-lg border-l-4 border-slate-700">
+                                  <p className="font-bold text-slate-300 mb-2">Question {index + 1}: {question.text}</p>
+                                  <div className="mt-2 text-sm space-y-2">
+                                      <div className={`flex items-start p-2 rounded ${isCorrect ? 'bg-emerald-900/30' : 'bg-red-900/30'}`}>
+                                          {isCorrect ? <CheckCircleIcon className="w-5 h-5 mr-2 text-emerald-400 flex-shrink-0 mt-0.5" /> : <XCircleIcon className="w-5 h-5 mr-2 text-red-400 flex-shrink-0 mt-0.5" />}
+                                          <div>
+                                              <span className="font-semibold text-slate-400">Your Answer: </span>
+                                              <span className={isCorrect ? 'text-emerald-300' : 'text-red-300'}>{userAnswer !== undefined ? selectedOptionText : 'Ran out of time'}</span>
+                                          </div>
+                                      </div>
+                                      {!isCorrect && (
+                                          <div className="flex items-start p-2 rounded bg-emerald-900/30">
+                                               <CheckCircleIcon className="w-5 h-5 mr-2 text-emerald-400 flex-shrink-0 mt-0.5" />
+                                               <div>
+                                                  <span className="font-semibold text-slate-400">Correct Answer: </span>
+                                                  <span className="text-emerald-300">{correctOptionText}</span>
+                                               </div>
+                                          </div>
+                                      )}
+                                  </div>
+                                  <div className="mt-3 pt-3 border-t border-slate-700">
+                                      <p className="font-semibold text-sky-400 text-sm">Explanation:</p>
+                                      <p className="text-slate-400 text-sm">{question.explanation}</p>
+                                  </div>
+                              </div>
+                          );
+                      })}
+                  </div>
+              </div>
+          );
+      };
+
+      // --- From components/StartScreen.tsx ---
+      const StartScreen = ({ onStartQuiz, onExportResults, onClearResults, pastResults }) => {
+          const handleClearResults = () => {
+              if (window.confirm('Are you sure you want to clear all quiz history? This action cannot be undone.')) {
+                  onClearResults();
+              }
+          };
+
+          return (
+              <div className="flex flex-col items-center justify-center h-full text-center p-4 animate-fadeIn">
+                  <BriefcaseIcon className="w-20 h-20 text-sky-400 mb-4" />
+                  <h1 
+                    className="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-blue-400 to-indigo-500 mb-4 animate-titleGradient"
+                    style={{ backgroundSize: '200% 200%' }}
+                  >
+                    Business & Marketing Principles
+                  </h1>
+                  <p className="text-lg text-slate-400 mb-10 max-w-3xl">
+                    Select a quiz to test your strategic knowledge. Choose between foundational concepts or apply your skills to real-world scenarios.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mb-8">
+                      <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 flex flex-col items-center">
+                          <h2 className="text-2xl font-bold text-slate-100 mb-2">{RECALL_QUIZ_DATA.title}</h2>
+                          <p className="text-slate-400 mb-4 flex-grow">{RECALL_QUIZ_DATA.description}</p>
+                          <button
+                              onClick={() => onStartQuiz(RECALL_QUIZ_DATA)}
+                              className="w-full bg-sky-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-sky-700 transition-transform transform hover:scale-105"
+                          >
+                              Start Recall Quiz
+                          </button>
+                      </div>
+                       <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700 flex flex-col items-center">
+                          <h2 className="text-2xl font-bold text-slate-100 mb-2">{APPLICATION_QUIZ_DATA.title}</h2>
+                          <p className="text-slate-400 mb-4 flex-grow">{APPLICATION_QUIZ_DATA.description}</p>
+                          <button
+                              onClick={() => onStartQuiz(APPLICATION_QUIZ_DATA)}
+                              className="w-full bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-105"
+                          >
+                              Start Application Quiz
+                          </button>
+                      </div>
+                  </div>
+                  {pastResults.length > 0 && (
+                      <div className="w-full max-w-2xl mt-12 animate-fadeIn">
+                          <div className="flex justify-between items-center mb-4">
+                              <h2 className="text-2xl font-bold text-slate-200 text-left">Quiz History</h2>
+                              <div className="flex gap-2">
+                                  <button onClick={onExportResults} className="bg-slate-700 text-slate-200 font-bold p-2 rounded-lg hover:bg-slate-600 transition flex items-center gap-2 text-sm">
+                                      <DocumentArrowDownIcon className="w-4 h-4" /> Export
+                                  </button>
+                                  <button onClick={handleClearResults} className="bg-red-800/80 text-white font-bold p-2 rounded-lg hover:bg-red-700 transition flex items-center gap-2 text-sm">
+                                      <TrashIcon className="w-4 h-4" /> Clear
+                                  </button>
+                              </div>
+                          </div>
+                          <div className="space-y-4 max-h-60 overflow-y-auto pr-2">
+                              {pastResults.map(result => (
+                                  <div key={result.timestamp} className="bg-slate-800/50 p-4 rounded-lg text-left flex justify-between items-center border border-slate-700">
+                                      <div>
+                                          <h3 className="font-bold text-slate-100">{result.quizTitle}</h3>
+                                          <p className="text-sm text-slate-400">
+                                              {new Date(result.timestamp).toLocaleString()}
+                                          </p>
+                                      </div>
+                                      <div className="text-right">
+                                          <p className="text-xl font-bold text-sky-400">
+                                              {result.score}/{result.totalQuestions}
+                                          </p>
+                                          <p className="text-sm font-semibold text-slate-300">
+                                              {Math.round((result.score / result.totalQuestions) * 100)}%
+                                          </p>
+                                      </div>
+                                  </div>
+                              ))}
+                          </div>
+                      </div>
+                  )}
+                  <footer className="mt-8 text-slate-500 text-sm">
+                      Designed by TheBoss
+                  </footer>
+              </div>
+          );
+      };
+
+      // --- From components/QuizView.tsx ---
+      const QuizView = ({ quizState, setQuizState, activeQuizData, onFinish, onEndQuizRequest }) => {
+          const [feedback, setFeedback] = useState(null);
+          const [selectedOption, setSelectedOption] = useState(null);
+          const [questionTimeLeft, setQuestionTimeLeft] = useState(0);
+          const [pageEffect, setPageEffect] = useState(null);
+
+          const timerRef = useRef(null);
+          const handleAnswerRef = useRef(null);
+
+          const currentQuestion = activeQuizData.questions[quizState.currentQuestionIndex];
+          const progress = (Object.keys(quizState.answers).length / activeQuizData.questions.length) * 100;
+
+          const clearTimer = () => {
+              if (timerRef.current) {
+                  clearInterval(timerRef.current);
+              }
+          };
+          
+          const handleAnswer = (optionIndex) => {
+              if (selectedOption !== null) return;
+
+              clearTimer();
+              setSelectedOption(optionIndex);
+              const isCorrect = optionIndex === currentQuestion.correctIndex;
+              
+              const newAnswers = {
+                  ...quizState.answers,
+                  [currentQuestion.id]: { selectedIndex: optionIndex, isCorrect },
+              };
+              setQuizState(prevState => prevState ? { ...prevState, answers: newAnswers } : null);
+
+              setPageEffect(isCorrect ? 'correct' : 'incorrect');
+
+              if (isCorrect) {
+                  setFeedback({ type: 'correct', message: CORRECT_MESSAGES[Math.floor(Math.random() * CORRECT_MESSAGES.length)] });
+              } else {
+                  setFeedback({ type: 'incorrect', message: INCORRECT_MESSAGES[Math.floor(Math.random() * INCORRECT_MESSAGES.length)] });
+              }
+
+              setTimeout(() => {
+                  setPageEffect(null);
+                  const isLastQuestion = quizState.currentQuestionIndex === activeQuizData.questions.length - 1;
+                  if (!isLastQuestion) {
+                       handleSelectQuestion(quizState.currentQuestionIndex + 1);
+                  }
+              }, 2000);
+          };
+          
+          useEffect(() => {
+              handleAnswerRef.current = handleAnswer;
+          }, [handleAnswer]);
+
+          const setupTimer = useCallback(() => {
+              clearTimer();
+              const timeLimit = currentQuestion.timeLimit;
+              setQuestionTimeLeft(timeLimit);
+
+              timerRef.current = setInterval(() => {
+                  setQuestionTimeLeft(prevTime => {
+                      if (prevTime <= 1) {
+                          clearTimer();
+                          if(handleAnswerRef.current) {
+                             handleAnswerRef.current(-1);
+                          }
+                          return 0;
+                      }
+                      return prevTime - 1;
+                  });
+              }, 1000);
+          }, [currentQuestion]);
+          
+          useEffect(() => {
+              setupTimer();
+              return clearTimer;
+          }, [quizState.currentQuestionIndex, setupTimer]);
+
+          useEffect(() => {
+              const sessionData = { quizId: activeQuizData.quizId, state: quizState };
+              localStorage.setItem(`active_quiz_session`, JSON.stringify(sessionData));
+          }, [quizState, activeQuizData.quizId]);
+
+          const handleSelectQuestion = (index) => {
+              setFeedback(null);
+              setSelectedOption(null);
+              setQuizState(prevState => prevState ? { ...prevState, currentQuestionIndex: index } : null);
+          };
+
+          const getButtonClass = (index) => {
+              const hasBeenAnswered = quizState.answers[currentQuestion.id] !== undefined;
+              if (hasBeenAnswered || selectedOption !== null) {
+                  if (index === currentQuestion.correctIndex) return 'bg-emerald-600 animate-pulse';
+                  if (index === selectedOption || index === quizState.answers[currentQuestion.id]?.selectedIndex) return 'bg-red-600 animate-shake';
+                  return 'bg-slate-700 opacity-50';
+              }
+              return 'bg-slate-800 hover:bg-slate-700';
+          };
+          
+          const getAnimationClass = () => {
+              if (pageEffect === 'correct') return 'animate-correct-celebration';
+              if (pageEffect === 'incorrect') return 'animate-incorrect-flash';
+              if (questionTimeLeft <= 4 && questionTimeLeft > 0) return 'animate-timer-warning-bg';
+              return '';
+          }
+
+          return (
+              <div className={`p-4 md:p-6 bg-slate-900 w-full h-full flex flex-col md:flex-row gap-6 animate-fadeIn overflow-hidden ${getAnimationClass()}`}>
+                  <div className="flex-grow flex flex-col">
+                      <div className="flex justify-between items-center mb-4">
+                          <span className="text-sm font-bold text-sky-400">Question {quizState.currentQuestionIndex + 1} / {activeQuizData.questions.length}</span>
+                          <div className={`flex items-center text-lg font-bold bg-slate-800 px-4 py-1 rounded-full transition-all ${questionTimeLeft <= 5 && questionTimeLeft > 0 ? 'animate-pulseRed' : ''}`}>
+                             <ClockIcon className="w-5 h-5 mr-2 text-slate-400"/>
+                             <span>{questionTimeLeft}s</span>
+                          </div>
+                      </div>
+                      <div className="w-full bg-slate-700 rounded-full h-2 mb-6">
+                          <div className="bg-sky-500 h-2 rounded-full" style={{ width: `${progress}%`, transition: 'width 0.5s ease-in-out' }}></div>
+                      </div>
+                      <div className="flex-grow overflow-y-auto pr-2">
+                          <h2 className="text-xl md:text-2xl font-semibold mb-6 text-slate-100">{currentQuestion.text}</h2>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {currentQuestion.options.map((option, index) => (
+                                  <button
+                                      key={index}
+                                      onClick={() => handleAnswer(index)}
+                                      disabled={selectedOption !== null || quizState.answers[currentQuestion.id] !== undefined}
+                                      className={`p-4 rounded-lg text-left transition-all duration-300 transform ${getButtonClass(index)} ${selectedOption === null && quizState.answers[currentQuestion.id] === undefined ? 'hover:scale-105' : 'cursor-not-allowed'}`}
+                                  >
+                                      <span className="font-bold mr-2">{String.fromCharCode(65 + index)}.</span>
+                                      {option}
+                                  </button>
+                              ))}
+                          </div>
+                      </div>
+                      {feedback && (
+                          <div className={`mt-6 p-4 rounded-lg flex items-center text-lg ${feedback.type === 'correct' ? 'bg-emerald-900/50 text-emerald-300' : 'bg-red-900/50 text-red-300'}`}>
+                              {feedback.type === 'correct' ? <CheckCircleIcon className="w-6 h-6 mr-3"/> : <XCircleIcon className="w-6 h-6 mr-3"/>}
+                              {feedback.message}
+                          </div>
+                      )}
+                  </div>
+                  <div className="w-full md:w-64 lg:w-80 flex-shrink-0 bg-slate-800/50 p-4 rounded-xl flex flex-col">
+                      <QuestionNav
+                          activeQuizData={activeQuizData}
+                          answers={quizState.answers}
+                          currentQuestionIndex={quizState.currentQuestionIndex}
+                          onSelectQuestion={handleSelectQuestion}
+                          onFinishQuiz={onFinish}
+                          onEndQuizRequest={onEndQuizRequest}
+                      />
+                  </div>
+              </div>
+          );
+      };
+
+      // --- From App.tsx ---
+      const App = () => {
+          const [quizState, setQuizState] = useState(null);
+          const [activeQuizData, setActiveQuizData] = useState(null);
+          const [view, setView] = useState('start');
+          const [savedSession, setSavedSession] = useState(null);
+          const [isEndQuizModalOpen, setIsEndQuizModalOpen] = useState(false);
+          const [pastResults, setPastResults] = useState([]);
+          const appContainerRef = useRef(null);
+
+          const SESSION_STORAGE_KEY = `active_quiz_session`;
+          const RESULTS_STORAGE_KEY_PREFIX = `quiz_results_`;
+          
+          useEffect(() => {
+            const elem = appContainerRef.current;
+            if (view === 'quiz') {
+                if (elem && !document.fullscreenElement) {
+                    elem.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                    });
+                }
+            } else {
+                if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(err => {
+                         console.error(`Error attempting to exit full-screen mode: ${err.message} (${err.name})`);
+                    });
+                }
+            }
+        }, [view]);
+
+          const loadPastResults = useCallback(() => {
+              const results = [];
+              for (let i = 0; i < localStorage.length; i++) {
+                  const key = localStorage.key(i);
+                  if (key && key.startsWith(RESULTS_STORAGE_KEY_PREFIX)) {
+                      try {
+                          const result = JSON.parse(localStorage.getItem(key));
+                          results.push(result);
+                      } catch (e) {
+                          console.error("Failed to parse result from localStorage", e);
+                      }
+                  }
+              }
+              results.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+              setPastResults(results);
+          }, [RESULTS_STORAGE_KEY_PREFIX]);
+
+          useEffect(() => {
+              try {
+                  const savedSessionJSON = localStorage.getItem(SESSION_STORAGE_KEY);
+                  if (savedSessionJSON) {
+                      const parsedSession = JSON.parse(savedSessionJSON);
+                      const quizData = parsedSession.quizId === RECALL_QUIZ_DATA.quizId ? RECALL_QUIZ_DATA : APPLICATION_QUIZ_DATA;
+                      if (parsedSession.state.currentQuestionIndex < quizData.questions.length && !parsedSession.state.isFinished) {
+                          setSavedSession(parsedSession);
+                      } else {
+                          localStorage.removeItem(SESSION_STORAGE_KEY);
+                      }
+                  }
+              } catch (error) {
+                  console.error("Failed to load session from localStorage", error);
+                  localStorage.removeItem(SESSION_STORAGE_KEY);
+              }
+          }, [SESSION_STORAGE_KEY]);
+
+          useEffect(() => {
+              if (view === 'start') {
+                  loadPastResults();
+              }
+          }, [view, loadPastResults]);
+
+          const startNewQuiz = useCallback((quizData) => {
+              const initialState = {
+                  currentQuestionIndex: 0,
+                  answers: {},
+                  isFinished: false,
+              };
+              setActiveQuizData(quizData);
+              setQuizState(initialState);
+              setView('quiz');
+              setSavedSession(null);
+              localStorage.removeItem(SESSION_STORAGE_KEY);
+          }, [SESSION_STORAGE_KEY]);
+
+          const resumeQuiz = () => {
+              if (savedSession) {
+                  const quizData = savedSession.quizId === RECALL_QUIZ_DATA.quizId ? RECALL_QUIZ_DATA : APPLICATION_QUIZ_DATA;
+                  setActiveQuizData(quizData);
+                  setQuizState(savedSession.state);
+                  setView('quiz');
+                  setSavedSession(null);
+              }
+          };
+
+          const handleFinishQuiz = useCallback(() => {
+              if (!quizState || !activeQuizData) return;
+
+              const finalState = { ...quizState, isFinished: true };
+              setQuizState(finalState);
+              
+              const correctAnswers = Object.values(finalState.answers).filter((ans) => ans.isCorrect).length;
+              
+              const result = {
+                  quizId: activeQuizData.quizId,
+                  quizTitle: activeQuizData.title,
+                  timestamp: new Date().toISOString(),
+                  score: correctAnswers,
+                  totalQuestions: activeQuizData.questions.length,
+                  answers: finalState.answers
+              };
+
+              const resultKey = `${RESULTS_STORAGE_KEY_PREFIX}${activeQuizData.quizId}_${result.timestamp}`;
+              localStorage.setItem(resultKey, JSON.stringify(result));
+              localStorage.removeItem(SESSION_STORAGE_KEY);
+              setView('results');
+          }, [quizState, activeQuizData, SESSION_STORAGE_KEY, RESULTS_STORAGE_KEY_PREFIX]);
+
+          const handleReview = () => setView('review');
+          const handleRetry = () => { if (activeQuizData) startNewQuiz(activeQuizData); };
+          const handleBackToStart = () => {
+              setView('start');
+              setQuizState(null);
+              setActiveQuizData(null);
+          };
+
+          const handleEndQuiz = () => {
+              localStorage.removeItem(SESSION_STORAGE_KEY);
+              handleBackToStart();
+              setIsEndQuizModalOpen(false);
+          };
+          
+          const exportResults = () => {
+              const results = {};
+              for (let i = 0; i < localStorage.length; i++) {
+                  const key = localStorage.key(i);
+                  if (key && key.startsWith(RESULTS_STORAGE_KEY_PREFIX)) {
+                      results[key] = JSON.parse(localStorage.getItem(key));
+                  }
+              }
+
+              if (Object.keys(results).length === 0) {
+                  alert("No results to export.");
+                  return;
+              }
+
+              const dataStr = JSON.stringify(results, null, 2);
+              const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+              const exportFileDefaultName = 'quiz_results.json';
+              const linkElement = document.createElement('a');
+              linkElement.setAttribute('href', dataUri);
+              linkElement.setAttribute('download', exportFileDefaultName);
+              linkElement.click();
+          };
+
+          const clearResults = () => {
+              const keysToRemove = [];
+              for (let i = 0; i < localStorage.length; i++) {
+                  const key = localStorage.key(i);
+                  if (key && key.startsWith(RESULTS_STORAGE_KEY_PREFIX)) {
+                      keysToRemove.push(key);
+                  }
+              }
+              keysToRemove.forEach(key => localStorage.removeItem(key));
+              loadPastResults();
+          };
+
+          const renderView = () => {
+              switch (view) {
+                  case 'quiz':
+                      return quizState && activeQuizData && (
+                          <QuizView 
+                              key={activeQuizData.quizId}
+                              quizState={quizState} 
+                              setQuizState={setQuizState} 
+                              activeQuizData={activeQuizData}
+                              onFinish={handleFinishQuiz} 
+                              onEndQuizRequest={() => setIsEndQuizModalOpen(true)}
+                          />
+                      );
+                  case 'results':
+                      return quizState && activeQuizData && <ResultsView quizState={quizState} activeQuizData={activeQuizData} onReview={handleReview} onRetry={handleRetry} />;
+                  case 'review':
+                      return quizState && activeQuizData && <ReviewView quizState={quizState} activeQuizData={activeQuizData} onBackToStart={handleBackToStart} />;
+                  case 'start':
+                  default:
+                      return (
+                          <StartScreen 
+                              onStartQuiz={startNewQuiz} 
+                              onExportResults={exportResults}
+                              onClearResults={clearResults}
+                              pastResults={pastResults}
+                          />
+                      );
+              }
+          };
+
+          return (
+              <main ref={appContainerRef} className="text-white min-h-screen flex flex-col items-center justify-center font-sans p-4">
+                   {savedSession && view === 'start' && (
+                       <Modal title="Welcome Back!" onClose={() => setSavedSession(null)}>
+                          <p className="text-slate-300 mb-6">You have a quiz in progress. Would you like to resume where you left off?</p>
+                          <div className="flex justify-around">
+                              <button onClick={resumeQuiz} className="bg-sky-600 text-white font-bold py-2 px-6 rounded-md hover:bg-sky-700 transition">Resume</button>
+                              <button onClick={() => {
+                                  const quizData = savedSession.quizId === RECALL_QUIZ_DATA.quizId ? RECALL_QUIZ_DATA : APPLICATION_QUIZ_DATA;
+                                  startNewQuiz(quizData);
+                               }} className="bg-slate-600 text-white font-bold py-2 px-6 rounded-md hover:bg-slate-500 transition">Start Over</button>
+                          </div>
+                      </Modal>
+                  )}
+                  {isEndQuizModalOpen && (
+                      <Modal title="End Quiz?" onClose={() => setIsEndQuizModalOpen(false)}>
+                          <p className="text-slate-300 mb-6">Are you sure you want to end the quiz? Your current progress will be lost.</p>
+                          <div className="flex justify-around">
+                              <button onClick={handleEndQuiz} className="bg-red-600 text-white font-bold py-2 px-6 rounded-md hover:bg-red-700 transition">Confirm</button>
+                              <button onClick={() => setIsEndQuizModalOpen(false)} className="bg-slate-600 text-white font-bold py-2 px-6 rounded-md hover:bg-slate-500 transition">Cancel</button>
+                          </div>
+                      </Modal>
+                  )}
+                  <div className="container mx-auto w-full max-w-7xl">
+                     {renderView()}
+                  </div>
+              </main>
+          );
+      };
+      
+      // --- From index.tsx ---
+      const rootElement = document.getElementById('root');
+      const root = ReactDOM.createRoot(rootElement);
+      root.render(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      );
+    </script>
+  </body>
+</html>
